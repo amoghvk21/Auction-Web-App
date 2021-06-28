@@ -1,0 +1,48 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <h1>Create Listing</h1>
+
+    <form action="{% url 'create' %}" method='POST'>
+
+        {% csrf_token %}
+
+        <label for='name'>Name of the Item: </label>
+        <input name='name' type='text'>
+        <br>
+
+        <label for='price'>Starting Price of the Item: </label>
+        <input name='price' type='number'>
+        <br>
+
+        <label for='details'>Details about the Item: </label>
+        <input name='details' type='text'>
+        <br>
+
+        <label for='imgUrl'>Image URL for the Item (Optional): </label>
+        <input name='imgUrl' type='url'>
+        <br>
+
+        <label for='category'>Category of Item (Optional): </label>
+        <select name='category'>
+            <option value='none'>None</option>
+            <option value='antiques'>Antiques</option>
+            <option value='electronics'>Electronics</option>
+            <option value='fashion'>Fashion</option>
+            <option value='homeGarden'>Home and Garden</option>
+            <option value='jewellery'>Jewellery</option>
+            <option value='motors'>Motors</option>
+            <option value='sportingGoods'>Sporting Goods</option>
+            <option value='toysGames'>Toys and Games</option>
+            <option value='books'>Books</option>
+            <option value='health'>Health</option>
+            <option value='other'>Other</option>
+        </select>
+        <br>
+
+        <input type='submit'>
+
+    </form>
+
+{% endblock %}
