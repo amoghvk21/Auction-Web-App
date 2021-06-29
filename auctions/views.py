@@ -8,7 +8,9 @@ from datetime import datetime
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+    return render(request, "auctions/index.html", {
+        'items': listings.objects.all()
+    })
 
 
 def login_view(request):
@@ -71,6 +73,9 @@ def create(request):
         details = request.POST['details']
         imgUrl = request.POST['imgUrl']
         category = request.POST['category']
+
+        if imgUrl == '':
+            imgUrl = 'static/auctions/default_img.png'
 
         item = listings.objects.create(name=name, price=price, time=time, details=details, imgUrl=imgUrl, category=category)
         item.save()

@@ -1,7 +1,26 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
+    <h2>Active Listings: </h2>
 
-    TODO
+    {% for item in items %}
+        <h3>{{item.name}}</h3>
+        <img src='{{item.imgUrl}}' alt='img of {{item.name}}'>
+        <p>{{item.details}}</p>
+        <h4>${{item.price}}</h4>
+        <label for='bid-box'>x bid(s) so far. Your bid is the current bid etc...</label>
+        <br>
+        <input type='text' name='bid-box'>
+        <input type='submit' value='Place Bid'>
+        <h4>Details: </h4>
+        <ul>
+            <li>Listed by: NAME</li>
+            {% if category == 'none' %}
+                <li>Category: No Category Listed</li>
+            {% else %}
+                <li>Category {{item.category}}</li>
+            {% endif %}
+        </ul>
+        <hr>
+    {% endfor %}
 {% endblock %}

@@ -11,18 +11,25 @@ class listings(models.Model):
     price = models.IntegerField()
     time = models.CharField(max_length=20)
     details = models.CharField(max_length=128)
-    imgUrl = models.CharField(max_length=256, default='default_img.PNG')
+    imgUrl = models.CharField(max_length=256)
     category = models.CharField(max_length=13, default='None')
 
     def __str__(self):
-        return f'{self.item_id}: {self.name}'
+        return {
+            'name': self.name,
+            'price':self.price,
+            'time': self.time,
+            'details': self.details,
+            'imgUrl': self.imgUrl,
+            'category': self.category
+        }
 
 class bids(models.Model):
     amount = models.IntegerField()
     time = models.CharField(max_length=20)
 
     def __str__(self):
-        return f'{self.bid_id}: {self.amount} at {self.time}'
+        return f'{self.amount} at {self.time}'
 
 class comments(models.Model):
     rank = models.IntegerField()
@@ -30,4 +37,4 @@ class comments(models.Model):
     time = models.CharField(max_length=20)
 
     def __str__(self):
-        return f'{self.comment_id}: {self.content} at {self.time}'
+        return f'{self.content} at {self.time}'
