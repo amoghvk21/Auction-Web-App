@@ -1,15 +1,16 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
+from django.db.models.query import prefetch_related_objects
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from .models import User, listings
+from .models import User, Listing, Watchlist
 from datetime import datetime
 
 
 def index(request):
     return render(request, "auctions/index.html", {
-        'items': listings.objects.all()
+        'items': Listing.objects.all()
     })
 
 
@@ -75,10 +76,31 @@ def create(request):
         category = request.POST['category']
 
         if imgUrl == '':
-            imgUrl = 'static/auctions/default_img.png'
+            imgUrl = '/static/auctions/default_img.png'
 
-        item = listings.objects.create(name=name, price=price, time=time, details=details, imgUrl=imgUrl, category=category)
+        item = Listing.objects.create(name=name, price=price, time=time, details=details, imgUrl=imgUrl, category=category)
         item.save()
         return HttpResponseRedirect(reverse('index'))
     else:
         return render(request, 'auctions/create.html')
+
+
+def listing(request, item):
+    if request.method == 'POST':
+        if request.POST['button'] == 'Watchlist':
+            watchlist = Watchlist.objects.get(user=request.user.id)
+            watchlist.listings.add(Listing.objects.get(name=item))
+        elif request.POST['bid-box'] != 'None':
+            pass
+        return HttpResponseRedirect(reverse('listing', args=(item, )))
+    else:
+        try:
+            temp = Watchlist.objects.filter(user=User.get_username, listings=item)
+            button = 'Remove From Watchlist'
+        except:
+            button = 'Watchlist'
+
+        return render(request, 'auctions/listing.html', {
+                'item': Listing.objects.get(name=item),
+                'button': button,
+        })
