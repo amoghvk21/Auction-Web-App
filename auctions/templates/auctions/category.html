@@ -1,0 +1,37 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+    <style>
+
+        img {
+            margin-right: 50px;
+            margin-left: 10px;
+        }      
+
+        #created {
+            color: rgb(177, 177, 177);
+        }
+        
+    </style>
+
+    <h2>{{category}}</h2>
+
+    {% for item in items %}
+        <div id='items'>
+            <table>
+                <tr>
+                    <th>
+                        <img src='{{item.imgUrl}}' alt='img of {{item.name}}'>
+                    </th>
+                    <th>
+                        <h3 id='name'><a href='\listing\{{item.name}}'>{{item.name}}</a></h3>
+                        <p id='price'><strong>Price: </strong>${{item.price}}</p>
+                        <p id='created'>Created: {{item.time}}</p>
+                    </th>
+                    <hr>
+                </tr>
+            </table>
+        </div>
+    {% endfor %}
+{% endblock %}

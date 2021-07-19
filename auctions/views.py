@@ -147,12 +147,11 @@ def watchlist(request):
 
 def categories_all(request):
     categories = ''
-    return render(request, 'auctions/categories.html', {
-        'categories': ['Antiques', 'Electronics', 'Fashion', 'Home and Garden', 'Jewlery', 'Motors', 'Sporting Goods', 'Toys and Games', 'Books', 'Health', 'Other']
-    })
+    return render(request, 'auctions/categories.html')
 
 
 def category(request, category):
-    return render(request, 'auctions/index.html', {
-        'items': Listing.objects.filter(category=category) 
+    return render(request, 'auctions/category.html', {
+        'items': Listing.objects.filter(category=category),
+        'category': category 
     })
