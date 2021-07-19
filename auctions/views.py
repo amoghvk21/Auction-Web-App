@@ -1,6 +1,7 @@
+from typing import List
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
-from django.db.models.query import prefetch_related_objects
+from django.db.models.query import EmptyQuerySet, prefetch_related_objects
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
@@ -60,7 +61,14 @@ def register(request):
             return render(request, "auctions/register.html", {
                 "message": "Username already taken."
             })
+
         login(request, user)
+
+        #empty row code:
+        current_user = User.objects.get(username=request.user.username)
+        a1 = Watchlist(user=current_user)
+        a1.save()
+
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
@@ -88,19 +96,63 @@ def create(request):
 def listing(request, item):
     if request.method == 'POST':
         if request.POST['button'] == 'Watchlist':
-            watchlist = Watchlist.objects.get(user=request.user.id)
-            watchlist.listings.add(Listing.objects.get(name=item))
+            item_id = Listing.objects.get(name=item).id
+            query_set = Watchlist.objects.filter(user=request.user.id, listings=item_id)
+            if query_set.exists():
+                #remove
+                watchlist = Watchlist.objects.get(user=request.user.id)
+                watchlist.listings.remove(Listing.objects.get(name=item))
+            else:
+                #add
+                watchlist = Watchlist.objects.get(user=request.user.id)
+                watchlist.listings.add(Listing.objects.get(name=item))
         elif request.POST['bid-box'] != 'None':
-            pass
+            #code for bid
+            try:
+                data = int(request.POST['bid-box'])
+            except:
+                pass
         return HttpResponseRedirect(reverse('listing', args=(item, )))
     else:
-        try:
-            temp = Watchlist.objects.filter(user=User.get_username, listings=item)
-            button = 'Remove From Watchlist'
-        except:
-            button = 'Watchlist'
+        item_id = Listing.objects.get(name=item).id
+        query_set = Watchlist.objects.filter(user=request.user.id, listings=item_id)
+        if query_set.exists():
+            button = 'Remove from Watchlist'
+        else:
+            button = 'Add to Watchlist'
 
         return render(request, 'auctions/listing.html', {
                 'item': Listing.objects.get(name=item),
-                'button': button,
+                'button': button
         })
+
+#Watchlist.objects.filter(user=request.user.id).exists()
+
+def watchlist(request):
+    '''
+    if Listing.objects.filter(watchlist=request.user.id).exists():
+        items = Listing.objects.filter(watchlist=request.user.id)
+    else:
+        items = ''
+    return render(request, 'auctions/watchlist.html', {
+        'items': items
+    })
+    '''
+
+    user = User.objects.get(username=request.user)
+    return render(request, 'auctions/watchlist.html', {
+        'items': user.watchlist.all()
+    })
+
+
+def categories_all(request):
+    categories = ''
+    return render(request, 'auctions/categories.html', {
+        'categories': ['Antiques', 'Electronics', 'Fashion', 'Home and Garden', 'Jewlery', 'Motors', 'Sporting Goods', 'Toys and Games', 'Books', 'Health', 'Other']
+    })
+
+
+def category(request, category):
+    return render(request, 'auctions/index.html', {
+        'items': Listing.objects.filter(category=category) 
+    })

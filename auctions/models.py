@@ -13,7 +13,9 @@ class Listing(models.Model):
     details = models.CharField(max_length=128)
     imgUrl = models.CharField(max_length=256)
     category = models.CharField(max_length=13, default='None')
-    #peopleWatching = models.ExpressionList()
+    #listedBy = models.CharField(max_length=256)
+    #closed = models.BooleanField(default=False)
+
 
     def __str__(self):
         return self.name
@@ -29,13 +31,14 @@ class Comment(models.Model):
     rank = models.IntegerField()
     content = models.CharField(max_length=64)
     time = models.CharField(max_length=20)
+    by = models.ForeignKey(User, blank=False, null=False, on_delete=models.DO_NOTHING)
 
     def __str__(self):
-        return f'{self.content} at {self.time}'
+        return f'{self.content} at {self.time} by {self.by}'
 
 class Watchlist(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=False)
-    listings = models.ManyToManyField(Listing, blank=True, related_name='watchlist')
+    user = models.ForeignKey(User, on_delete=models.DO_NOTHING, blank=False, related_name='watchlist')
+    listings = models.ManyToManyField(Listing, blank=True, null=True, related_name='watchlist')
 
     def __str__(self):
-        return f'{self.user}: {self.listings}'
+        return f'{self.user}: {self.listings}' 
