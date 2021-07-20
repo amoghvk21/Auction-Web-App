@@ -41,4 +41,4 @@ class Watchlist(models.Model):
     listings = models.ManyToManyField(Listing, blank=True, null=True, related_name='watchlist')
 
     def __str__(self):
-        return f'{self.user}: {self.listings}' 
+        return f'{self.user}''s watchlist' 

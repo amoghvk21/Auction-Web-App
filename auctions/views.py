@@ -108,6 +108,7 @@ def listing(request, item):
                 watchlist.listings.add(Listing.objects.get(name=item))
         elif request.POST['bid-box'] != 'None':
             #code for bid
+            pass
             try:
                 data = int(request.POST['bid-box'])
             except:
@@ -129,24 +130,20 @@ def listing(request, item):
 #Watchlist.objects.filter(user=request.user.id).exists()
 
 def watchlist(request):
-    '''
-    if Listing.objects.filter(watchlist=request.user.id).exists():
-        items = Listing.objects.filter(watchlist=request.user.id)
+    
+    if Watchlist.objects.all().filter(user=request.user.id)[0].listings.all().exists():
+        items = Watchlist.objects.all().filter(user=request.user.id)[0].listings.all()
     else:
         items = ''
+
     return render(request, 'auctions/watchlist.html', {
         'items': items
     })
-    '''
+    #Watchlist.objects.all().filter(user=request.user.id)[0].listings.all()
 
-    user = User.objects.get(username=request.user)
-    return render(request, 'auctions/watchlist.html', {
-        'items': user.watchlist.all()
-    })
 
 
 def categories_all(request):
-    categories = ''
     return render(request, 'auctions/categories.html')
 
 
