@@ -2,32 +2,74 @@
 
 {% block body %}
 
+    <style>
+
+        #comment-div {
+            border: 1px black solid;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            padding-left: 5px;
+        }
+
+        #comment {
+            margin-bottom: 10px;
+        }
+
+    </style>
+
     <h3>{{item.name}}</h3>
     <img src='{{item.imgUrl}}' alt='img of {{item.name}}'>
     <p>{{item.details}}</p>
     <h4>${{item.price}}</h4>
-    <label for='bid-box'>x bid(s) so far. Your bid is the current bid etc...</label>
+    
+    {% if item.listedBy != user.username %}
+        <label for='bid-box'>x bid(s) so far. Your bid is the current bid etc...</label>
+        <br>
+        <form action='/listing/{{item.name}}' method='POST'>
+            {% csrf_token %}
+            <input type='number' name='bid-box'>
+            <input type='submit' value='Place Bid'>
+            <input type='hidden' name='comment' value='None'>
+        </form>
+    {% endif %}
+
     <br>
-    <form action='/listing/{{item.name}}' method='POST'>
-        {% csrf_token %}
-        <input type='text' name='bid-box'>
-        <input type='submit' value='Place Bid'>
-    </form>
     <h4>Details: </h4>
     <ul>
-        <li>Listed by: NAME</li>
+        <li>Listed by: {{item.listedBy}}</li>
         {% if category == 'none' %}
             <li>Category: No Category Listed</li>
         {% else %}
-            <li>Category {{item.category}}</li>
+            <li>Category: <a href="{% url 'category' item.category %}">{{item.category.capitalize}}</a></li>
         {% endif %}
     </ul>
     
     {% if user.is_authenticated %}
+
         <form action="/listing/{{item.name}}" method='POST'>
             {% csrf_token %}
             <button type='submit' name='button' value='Watchlist'>{{button}}</button>
             <input type='hidden' name='bid-box' value='None'>
+            <input type='hidden' name='comment' value='None'>
+        </form>
+
+        <form action="/listing/{{item.name}}" method="POST">
+            {% csrf_token %}
+            <br>
+            <h4>Comments: </h4>
+            <input type='hidden' name='bid-box' value='None'>
+            <input type='hidden' name='button' value='None'>
+
+            {% for comment in comments %}
+                <div id='comment-div'>
+                    <p id='comment'>"{{comment.content}}"</p>
+                    <p id='info'>At: {{comment.time}} By: {{comment.by}}</p>
+                </div>
+            {% endfor %}
+
+            <label for='comment-box'>Add comment: </label>
+            <input type='textarea' name='comment' id='comment-box'>
+            <input type='submit'>
         </form>
     {% endif %}
 

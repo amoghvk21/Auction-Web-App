@@ -5,7 +5,7 @@ from django.db.models.query import EmptyQuerySet, prefetch_related_objects
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from .models import User, Listing, Watchlist
+from .models import User, Listing, Watchlist, Comment, Bid
 from datetime import datetime
 
 
@@ -82,11 +82,13 @@ def create(request):
         details = request.POST['details']
         imgUrl = request.POST['imgUrl']
         category = request.POST['category']
+        listedBy = request.user.username
+        closed = False
 
         if imgUrl == '':
             imgUrl = '/static/auctions/default_img.png'
 
-        item = Listing.objects.create(name=name, price=price, time=time, details=details, imgUrl=imgUrl, category=category)
+        item = Listing.objects.create(name=name, price=price, time=time, details=details, imgUrl=imgUrl, category=category, listedBy=listedBy, closed=closed)
         item.save()
         return HttpResponseRedirect(reverse('index'))
     else:
@@ -95,6 +97,7 @@ def create(request):
 
 def listing(request, item):
     if request.method == 'POST':
+
         if request.POST['button'] == 'Watchlist':
             item_id = Listing.objects.get(name=item).id
             query_set = Watchlist.objects.filter(user=request.user.id, listings=item_id)
@@ -106,14 +109,22 @@ def listing(request, item):
                 #add
                 watchlist = Watchlist.objects.get(user=request.user.id)
                 watchlist.listings.add(Listing.objects.get(name=item))
-        elif request.POST['bid-box'] != 'None':
+
+        if request.POST['bid-box'] != 'None':
             #code for bid
             pass
             try:
                 data = int(request.POST['bid-box'])
             except:
                 pass
+
+        if request.POST['comment'] != 'None':
+            #code for comment
+            c = Comment(content=request.POST['comment'], time=datetime.now().strftime("%d/%m/%Y %H:%M:%S"), by=User.objects.get(id=request.user.id), listing=Listing.objects.get(name=item))
+            c.save()
+
         return HttpResponseRedirect(reverse('listing', args=(item, )))
+
     else:
         item_id = Listing.objects.get(name=item).id
         query_set = Watchlist.objects.filter(user=request.user.id, listings=item_id)
@@ -124,10 +135,10 @@ def listing(request, item):
 
         return render(request, 'auctions/listing.html', {
                 'item': Listing.objects.get(name=item),
-                'button': button
+                'button': button,
+                'comments': Comment.objects.filter(listing=item_id)
         })
 
-#Watchlist.objects.filter(user=request.user.id).exists()
 
 def watchlist(request):
     
@@ -139,8 +150,6 @@ def watchlist(request):
     return render(request, 'auctions/watchlist.html', {
         'items': items
     })
-    #Watchlist.objects.all().filter(user=request.user.id)[0].listings.all()
-
 
 
 def categories_all(request):
