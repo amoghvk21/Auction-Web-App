@@ -35,6 +35,8 @@
             {% csrf_token %}
             {{ bidform }}
             <input type='hidden' name='comment' value='None'>
+            <input type='hidden' name='button' value='None'>
+            <input type='hidden' name='close' value='false'>
             <input type='submit'>
         </form>
     {% endif %}
@@ -55,7 +57,7 @@
         <form action="/listing/{{item.name}}" method='POST'>
             {% csrf_token %}
             <button type='submit' name='button' value='Watchlist'>{{button}}</button>
-            <input type='hidden' name='bid-box' value='None'>
+            <input type='hidden' name='close' value='false'>
             <input type='hidden' name='comment' value='None'>
         </form>
 
@@ -63,7 +65,7 @@
             {% csrf_token %}
             <br>
             <h4>Comments: </h4>
-            <input type='hidden' name='bid-box' value='None'>
+            <input type='hidden' name='close' value='false'>
             <input type='hidden' name='button' value='None'>
 
             {% for comment in comments %}

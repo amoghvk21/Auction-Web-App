@@ -132,9 +132,11 @@ def listing(request, item):
         form = MakeBidForm(request.POST)
         if form.is_valid():
             bid = form.cleaned_data['bid']
+            b = Bid(amount=bid, time=datetime.now().strftime("%d/%m/%Y %H:%M:%S"), listing=Listing.objects.get(name=item), by=User.objects.get(id=request.user.id))
+            b.save()
         
         #close bid
-        if request.POST['bid-box'] == 'close':
+        if request.POST['close'] == 'true':
             pass
     
         #comment
@@ -153,7 +155,7 @@ def listing(request, item):
             button = 'Add to Watchlist'
         
         try:
-            if Bid.objects.get(amount=highest_bid-1).by == request.user.id:
+            if Bid.objects.get(amount=highest_bid-1).by == request.user:
                 isHighestBid = True
             else:
                 isHighestBid = False
