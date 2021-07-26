@@ -17,28 +17,47 @@
 
     </style>
 
-    <h3>{{item.name}}</h3>
+    {% if item.winner == request.user.username %}
+    <h1>YOU WON THE BIDDING!</h1>
+    {% endif %}
+
+    {% if item.closed == False %}
+        <h3>{{item.name}}</h3>
+    {% else %}
+        <h3>{{item.name}} (closed)</h3>
+    {% endif %}
     <img src='{{item.imgUrl}}' alt='img of {{item.name}}'>
     <p>{{item.details}}</p>
-    <h4>${{item.price}}</h4>
-    
-    {% if item.listedBy != user.username %}
+    <h4>Starting Bid: ${{item.price}}</h4>
 
-        {% if isHighestBid %}
-            <label for='bid-box'>{{numOfBids}} bid(s) so far. Your bid is the highest bid!</label>
+    {% if item.closed == False %}
+        {% if item.listedBy != user.username %}
+
+            {% if isHighestBid %}
+                <label for='bid-box'>{{numOfBids}} bid(s) so far. Your bid is the highest bid!</label>
+            {% else %}
+                <label for='bid-box'>{{numOfBids}} bid(s) so far. Your bid isn't the highest bid (Min bid: {{highest_bid}})</label>
+            {% endif %}
+
+            <br>
+            {% if user.is_authenticated %}
+                <form action='/listing/{{item.name}}' method='POST'>
+                    {% csrf_token %}
+                    {{ bidform }}
+                    <input type='hidden' name='comment' value='None'>
+                    <input type='hidden' name='button' value='None'>
+                    <input type='hidden' name='close' value='false'>
+                    <input type='submit'>
+                </form>
+            {% endif %}
         {% else %}
-            <label for='bid-box'>{{numOfBids}} bid(s) so far. Your bid isn't the highest bid (Min bid: {{highest_bid}})</label>
+            <form method='POST' action='/listing/{{item.name}}'>
+                {% csrf_token %}
+                <button type='submit' name='close' value='true'>Close Bidding at {{highest_bid_min1}}</button>
+                <input type='hidden' name='comment' value='None'>
+                <input type='hidden' name='button' value='None'>
+            </form>
         {% endif %}
-
-        <br>
-        <form action='/listing/{{item.name}}' method='POST'>
-            {% csrf_token %}
-            {{ bidform }}
-            <input type='hidden' name='comment' value='None'>
-            <input type='hidden' name='button' value='None'>
-            <input type='hidden' name='close' value='false'>
-            <input type='submit'>
-        </form>
     {% endif %}
 
     <br>

@@ -85,11 +85,12 @@ def create(request):
         category = request.POST['category']
         listedBy = request.user.username
         closed = False
+        winner = 'None'
 
         if imgUrl == '':
             imgUrl = '/static/auctions/default_img.png'
 
-        item = Listing.objects.create(name=name, price=price, time=time, details=details, imgUrl=imgUrl, category=category, listedBy=listedBy, closed=closed)
+        item = Listing.objects.create(name=name, price=price, time=time, details=details, imgUrl=imgUrl, category=category, listedBy=listedBy, closed=closed, winner=winner)
         item.save()
         return HttpResponseRedirect(reverse('index'))
     else:
@@ -127,8 +128,6 @@ def listing(request, item):
                 watchlist.listings.add(Listing.objects.get(name=item))
 
         #make bid
-        '''if request.POST['bid-box'] != 'None':
-            bid = int(request.POST['bid-box'])'''
         form = MakeBidForm(request.POST)
         if form.is_valid():
             bid = form.cleaned_data['bid']
@@ -137,7 +136,10 @@ def listing(request, item):
         
         #close bid
         if request.POST['close'] == 'true':
-            pass
+            l = Listing.objects.get(name=item)
+            l.closed = True
+            l.winner = Bid.objects.get(amount=highest_bid-1, listing=Listing.objects.get(name=item)).by.username
+            l.save()
     
         #comment
         if request.POST['comment'] != 'None':
@@ -171,7 +173,9 @@ def listing(request, item):
                 'bidform': MakeBidForm(),
                 'isHighestBid': isHighestBid,
                 'numOfBids': numOfBids,
-                'highest_bid': highest_bid
+                'highest_bid': highest_bid,
+                'highest_bid_min1': highest_bid-1 
+                #'highest_bidder': Listing.objects.get(name=item).winner
         })
 
 

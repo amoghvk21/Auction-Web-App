@@ -25,8 +25,12 @@
                         <img src='{{item.imgUrl}}' alt='img of {{item.name}}'>
                     </th>
                     <th>
-                        <h3 id='name'><a href='\listing\{{item.name}}'>{{item.name}}</a></h3>
-                        <p id='price'><strong>Price: </strong>${{item.price}}</p>
+                        {% if item.closed == False %}
+                            <h3 id='name'><a href='\listing\{{item.name}}'>{{item.name}}</a></h3>
+                        {% else %}
+                            <h3 id='name'><a href='\listing\{{item.name}}'>{{item.name}} (closed)</a></h3>
+                        {% endif %}
+                        <p id='price'><strong>Starting Bid: </strong>${{item.price}}</p>
                         <p id='created'>Created: {{item.time}}</p>
                     </th>
                     <hr>

@@ -15,6 +15,7 @@ class Listing(models.Model):
     category = models.CharField(max_length=13, default='None')
     listedBy = models.CharField(max_length=256, blank=False)
     closed = models.BooleanField(default=False)
+    winner = models.CharField(default='None', max_length=256)
 
     def __str__(self):
         return self.name
