@@ -16,16 +16,17 @@ class Listing(models.Model):
     listedBy = models.CharField(max_length=256, blank=False)
     closed = models.BooleanField(default=False)
 
-
     def __str__(self):
         return self.name
 
 class Bid(models.Model):
     amount = models.IntegerField()
     time = models.CharField(max_length=20)
+    listing = models.ForeignKey(Listing, blank=False, on_delete=models.DO_NOTHING)
+    by = models.ForeignKey(User, blank=False, on_delete=models.DO_NOTHING)
 
     def __str__(self):
-        return f'{self.amount} at {self.time}'
+        return f'{self.amount} at {self.time} for {self.listing} by {self.by}'
 
 class Comment(models.Model):
     content = models.CharField(max_length=64)

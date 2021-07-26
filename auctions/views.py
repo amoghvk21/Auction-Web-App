@@ -7,6 +7,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from .models import User, Listing, Watchlist, Comment, Bid
 from datetime import datetime
+from django import forms
 
 
 def index(request):
@@ -96,8 +97,23 @@ def create(request):
 
 
 def listing(request, item):
+    all_amounts = []
+    item_id = Listing.objects.get(name=item).id
+    if Bid.objects.filter(listing=item_id).exists():
+        #get highest value
+        for listing in Bid.objects.filter(listing=item_id):
+            all_amounts.append(listing.amount)
+            all_amounts.sort(reverse=True)
+        highest_bid = all_amounts[0] + 1
+    else:
+        highest_bid = Listing.objects.get(name=item).price + 1
+
+    class MakeBidForm(forms.Form):
+        bid = forms.IntegerField(label='Make Bid', min_value=highest_bid)
+
     if request.method == 'POST':
 
+        #watchlist
         if request.POST['button'] == 'Watchlist':
             item_id = Listing.objects.get(name=item).id
             query_set = Watchlist.objects.filter(user=request.user.id, listings=item_id)
@@ -110,16 +126,19 @@ def listing(request, item):
                 watchlist = Watchlist.objects.get(user=request.user.id)
                 watchlist.listings.add(Listing.objects.get(name=item))
 
-        if request.POST['bid-box'] != 'None':
-            #code for bid
+        #make bid
+        '''if request.POST['bid-box'] != 'None':
+            bid = int(request.POST['bid-box'])'''
+        form = MakeBidForm(request.POST)
+        if form.is_valid():
+            bid = form.cleaned_data['bid']
+        
+        #close bid
+        if request.POST['bid-box'] == 'close':
             pass
-            try:
-                data = int(request.POST['bid-box'])
-            except:
-                pass
-
+    
+        #comment
         if request.POST['comment'] != 'None':
-            #code for comment
             c = Comment(content=request.POST['comment'], time=datetime.now().strftime("%d/%m/%Y %H:%M:%S"), by=User.objects.get(id=request.user.id), listing=Listing.objects.get(name=item))
             c.save()
 
@@ -132,11 +151,25 @@ def listing(request, item):
             button = 'Remove from Watchlist'
         else:
             button = 'Add to Watchlist'
+        
+        try:
+            if Bid.objects.get(amount=highest_bid-1).by == request.user.id:
+                isHighestBid = True
+            else:
+                isHighestBid = False
+        except:
+            isHighestBid = False
+
+        numOfBids = len(all_amounts)
 
         return render(request, 'auctions/listing.html', {
                 'item': Listing.objects.get(name=item),
                 'button': button,
-                'comments': Comment.objects.filter(listing=item_id)
+                'comments': Comment.objects.filter(listing=item_id),
+                'bidform': MakeBidForm(),
+                'isHighestBid': isHighestBid,
+                'numOfBids': numOfBids,
+                'highest_bid': highest_bid
         })
 
 

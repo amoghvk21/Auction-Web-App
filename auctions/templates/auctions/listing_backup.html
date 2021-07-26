@@ -23,19 +23,13 @@
     <h4>${{item.price}}</h4>
     
     {% if item.listedBy != user.username %}
-
-        {% if isHighestBid %}
-            <label for='bid-box'>{{numOfBids}} bid(s) so far. Your bid is the highest bid!</label>
-        {% else %}
-            <label for='bid-box'>{{numOfBids}} bid(s) so far. Your bid isn't the highest bid (Min bid: {{highest_bid}})</label>
-        {% endif %}
-
+        <label for='bid-box'>x bid(s) so far. Your bid is the current bid etc...</label>
         <br>
         <form action='/listing/{{item.name}}' method='POST'>
             {% csrf_token %}
-            {{ bidform }}
+            <input type='number' name='bid-box'>
+            <input type='submit' value='Place Bid'>
             <input type='hidden' name='comment' value='None'>
-            <input type='submit'>
         </form>
     {% endif %}
 
